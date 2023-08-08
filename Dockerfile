@@ -1,19 +1,24 @@
 # 
 #   Base layer
 # 
-FROM node:20.5.0-alpine as base
-RUN npm i -g pnpm
+FROM node:20.5.0 as base
+RUN npm install -g pnpm
 
 # 
 #   Dependencies layer
 # 
+# FROM base as dependencies
 FROM base as dependencies
+# RUN apk add make g++ python3 git
+
+RUN npm install -g pnpm node-gyp
 WORKDIR /app
+
 COPY tsconfig*.json ./
 COPY package*.json pnpm-lock.yaml ./
 
 # Install dependencies from pnpm-lock.yaml, see https://docs.npmjs.com/cli/v7/commands/npm-ci
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=/app/node_modules pnpm install --frozen-lockfile
 
 # 
 #   Building layer
@@ -22,10 +27,10 @@ FROM base as build
 
 WORKDIR /app
 COPY . .
-COPY --from=dependencies /app/node_modules/ ./node_modules/
+RUN --mount=type=cache,target=/app/node_modules pnpm install --frozen-lockfile
 
 # Build application (produces dist/ folder)
-RUN pnpm build
+RUN --mount=type=cache,target=/app/node_modules pnpm build
 RUN pnpm prune --prod
 
 #
@@ -39,6 +44,8 @@ COPY package*.json pnpm-lock.yaml ./
 
 COPY --from=build /app/node_modules/ ./node_modules/
 COPY --from=build /app/dist/ ./dist/
+
+COPY .env ./
 
 # Expose application port
 EXPOSE 3000
