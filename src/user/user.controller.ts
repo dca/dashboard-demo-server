@@ -2,13 +2,8 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiTags, ApiOperation, ApiProperty, ApiBody } from '@nestjs/swagger';
 
-class CreateUserDto {
-  @ApiProperty()
-  email: string;
+import { CreateUserDto } from './dto/create-user.dto';
 
-  @ApiProperty()
-  password: string;
-}
 
 @ApiTags('user')
 @Controller('user')
