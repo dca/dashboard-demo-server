@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepository } from 'libs/db/src/repository/user.repository';
+import { UserRepository } from '@app/db/repository/user.repository';
 import * as argon2 from 'argon2';
 import { PrismaService } from '@app/db/prisma/prisma.service';
 

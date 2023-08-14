@@ -30,6 +30,7 @@ COPY . .
 RUN --mount=type=cache,target=/app/node_modules pnpm install --frozen-lockfile
 
 # Build application (produces dist/ folder)
+RUN --mount=type=cache,target=/app/node_modules pnpm dlx prisma generate
 RUN --mount=type=cache,target=/app/node_modules pnpm build
 RUN pnpm prune --prod
 

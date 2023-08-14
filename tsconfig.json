@@ -23,6 +23,12 @@
       ],
       "@app/db/*": [
         "libs/db/src/*"
+      ],
+      "@app/otel": [
+        "libs/otel/src"
+      ],
+      "@app/otel/*": [
+        "libs/otel/src/*"
       ]
     }
   }

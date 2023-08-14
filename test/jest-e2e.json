@@ -12,6 +12,8 @@
   },
   "moduleNameMapper": {
     "@app/db/(.*)": "<rootDir>/../libs/db/src/$1",
-    "@app/db": "<rootDir>/../libs/db/src"
+    "@app/db": "<rootDir>/../libs/db/src",
+    "@app/otel/(.*)": "<rootDir>/../libs/otel/src/$1",
+    "@app/otel": "<rootDir>/../libs/otel/src"
   }
 }
