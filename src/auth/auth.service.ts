@@ -1,44 +1,48 @@
-import { UserRepository } from '@app/db/repository/user.repository';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as argon2 from 'argon2';
-import { JwtPayload } from './jwt-payload.interface';
-import { User } from '@prisma/client';
+import { UserRepository } from '@app/db/repository/user.repository'
+import { Injectable } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
+import * as argon2 from 'argon2'
+import { JwtPayload } from './jwt-payload.interface'
+import { User } from '@prisma/client'
+
+interface LoginResponseDto {
+  email: string
+  sub: string
+  access_token: string
+}
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private userRepository: UserRepository,
-    private jwtService: JwtService,
+  constructor (
+    private readonly userRepository: UserRepository,
+    private readonly jwtService: JwtService
+  ) {}
 
-  ) { }
-
-  async validateUser(email: string, password: string) {
-    console.log('AuthService.validateUser')
+  async validateUser (email: string, password: string): Promise<User | null> {
     const user = await this.userRepository.findUnique({
-      where: { email: email },
-    });
+      where: { email }
+    })
 
-    if (user && await argon2.verify(user.password, password)) {
-      return user;
+    if (user != null && (await argon2.verify(user.password, password))) {
+      return user
     }
-    return null;
+    return null
   }
 
-  async validateUserByJwt(payload: JwtPayload): Promise<User> {
+  async validateUserByJwt (payload: JwtPayload): Promise<User | null> {
     return await this.userRepository.findUnique({ where: { id: payload.sub } })
   }
 
-  async validateUserByGoogle(profile: any): Promise<any> {
-    return profile;
+  async validateUserByGoogle (profile: any): Promise<any> {
+    return profile
   }
 
-  async login(user: any) {
-    const payload: JwtPayload = { email: user.email, sub: user.id };
+  async login (user: any): Promise<LoginResponseDto> {
+    const payload: JwtPayload = { email: user.email, sub: user.id }
     return {
       email: user.email,
       sub: user.id,
-      access_token: this.jwtService.sign(payload, { secret: 'jwt.secret1111' }),
-    };
+      access_token: this.jwtService.sign(payload, { secret: 'jwt.secret1111' })
+    }
   }
 }
