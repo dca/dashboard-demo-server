@@ -10,7 +10,17 @@ services:
     # environment: 
     #   - ENVS=
 
-  mysql:
+  mariadb:
+    image: mariadb:10.4
+    environment:
+      MARIADB_ROOT_PASSWORD: this_is_a_password_for_testing_only
+      MARIADB_DATABASE: mydb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+  zipkin-mysql:
     image: ghcr.io/openzipkin/zipkin-mysql:${TAG:-latest}
 
   zipkin:
@@ -20,7 +30,7 @@ services:
     environment:
       - STORAGE_TYPE=mem
       # Point the zipkin at the storage backend
-      - MYSQL_HOST=mysql
+      - MYSQL_HOST=zipkin-mysql
       # Uncomment to enable self-tracing
       - SELF_TRACING_ENABLED=true
       # Uncomment to increase heap size
@@ -31,3 +41,5 @@ services:
     # Uncomment to enable debug logging
     # command: --logging.level.zipkin2=DEBUGversion: "3.2"
 
+volumes:
+  mariadb-data:
