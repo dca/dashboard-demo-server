@@ -1,2 +1,2 @@
-export * from './otel.module';
-export * from './otel.service';
+export * from './otel.module'
+export * from './otel.service'

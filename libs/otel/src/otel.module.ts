@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { OtelService } from './otel.service';
+import { Module } from '@nestjs/common'
+import { OtelService } from './otel.service'
 import {
   OpenTelemetryModule,
   ControllerInjector,
@@ -9,10 +9,10 @@ import {
   PipeInjector,
   ConsoleLoggerInjector,
   OpenTelemetryModuleDefaultConfig
-} from '@amplication/opentelemetry-nestjs';
-import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { PrismaInstrumentation } from '@prisma/instrumentation';
+} from '@amplication/opentelemetry-nestjs'
+import { ZipkinExporter } from '@opentelemetry/exporter-zipkin'
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base'
+import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 @Module({
   imports: [
@@ -24,21 +24,21 @@ import { PrismaInstrumentation } from '@prisma/instrumentation';
         EventEmitterInjector,
         ScheduleInjector,
         PipeInjector,
-        ConsoleLoggerInjector,
+        ConsoleLoggerInjector
         // LoggerInjector
       ],
       instrumentations: [
         ...OpenTelemetryModuleDefaultConfig.instrumentations,
-        new PrismaInstrumentation({ middleware: true }),
+        new PrismaInstrumentation({ middleware: true })
       ],
-      spanProcessor: (new SimpleSpanProcessor(
+      spanProcessor: new SimpleSpanProcessor(
         new ZipkinExporter({
-          url: 'http://localhost:9411/api/v2/spans',
-        })) as any
-      ),
-    }),
+          url: 'http://localhost:9411/api/v2/spans'
+        })
+      ) as any
+    })
   ],
   providers: [OtelService],
-  exports: [OtelService],
+  exports: [OtelService]
 })
-export class OtelModule { }
+export class OtelModule {}
