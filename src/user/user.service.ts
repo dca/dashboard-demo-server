@@ -18,15 +18,4 @@ export class UserService {
       password: hashedPassword,
     });
   }
-
-  async validateUser(email: string, password: string) {
-    const user = await this.prismaService.user.findUnique({
-      where: { email: email },
-    });
-
-    if (user && await argon2.verify('user.password', password)) {
-      return user;
-    }
-    return null;
-  }
 }
