@@ -40,9 +40,9 @@ export class PrismaService
           level: 'warn'
         }
       ]
-    });
+    })
 
-    (this.$on as any)('query', this.log.bind(this))
+    // (this.$on as any)('query', this.log.bind(this))
   }
 
   async onModuleInit (): Promise<void> {

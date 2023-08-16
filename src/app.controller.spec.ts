@@ -3,7 +3,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { OtelModule } from '@app/otel'
 import { DbModule } from '@app/db'
-import { UserModule } from './user/user.module'
+import { UserModule } from './modules/user/user.module'
 
 describe('AppController', () => {
   let appController: AppController

@@ -13,8 +13,12 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     console.log('LocalStrategy.validate')
     const user = await this.authService.validateUser(email, password)
     if (user == null) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException() // user not found
     }
+    // if (user.isVerified === null) {
+    //   throw new UnauthorizedException('Please verify your email first')
+    // }
+
     return user
   }
 }
