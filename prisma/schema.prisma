@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["tracing"]
 }
 
@@ -12,9 +12,31 @@ datasource db {
 }
 
 model User {
+  id                          Int       @id @default(autoincrement())
+  email                       String    @unique
+  password                    String
+  isVerified                  Boolean   @default(false) @map("is_verified")
+  verificationToken           String?   @unique @map("verification_token")
+  verificationTokenExpiration DateTime? @map("verification_token_expiration")
+
+  loginCount        Int      @default(0) @map("login_count")
+  lastSession       DateTime? @map("last_session")
+  
+  userSessions  UserSession[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model UserSession {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+
+  lastSeen   DateTime @map("last_seen")
+  sessionDate DateTime @map("session_date")
+
+  @@map("user_sessions")
 }

@@ -28,7 +28,7 @@ import { PrismaInstrumentation } from '@prisma/instrumentation'
         // LoggerInjector
       ],
       instrumentations: [
-        ...OpenTelemetryModuleDefaultConfig.instrumentations,
+        ...(OpenTelemetryModuleDefaultConfig.instrumentations ?? []),
         new PrismaInstrumentation({ middleware: true })
       ],
       spanProcessor: new SimpleSpanProcessor(

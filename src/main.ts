@@ -11,6 +11,8 @@ async function bootstrap (): Promise<void> {
     //
   })
 
+  app.setGlobalPrefix('api')
+
   const config = new DocumentBuilder()
     .setTitle('Demo APIs')
     .setVersion('1.0')

@@ -19,5 +19,37 @@ export class UserRepository {
   async findUnique (args: Prisma.UserFindUniqueArgs): Promise<User | null> {
     return await this.prisma.user.findUnique(args)
   }
+
+  async getAllUsers (): Promise<User[]> {
+    return await this.prisma.user.findMany()
+  }
+
+  async getActiveSessionsToday (): Promise<number> {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return await this.prisma.user.count({
+      where: {
+        lastSession: {
+          gte: today
+        }
+      }
+    })
+  }
+
+  async getAverageActiveSessionsLast7Days (): Promise<number> {
+    const now = new Date()
+    const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7))
+
+    const activeSessions = await this.prisma.user.count({
+      where: {
+        lastSession: {
+          gte: sevenDaysAgo
+        }
+      }
+    })
+
+    return activeSessions / 7
+  }
+
   //
 }
