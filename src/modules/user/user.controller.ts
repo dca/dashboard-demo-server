@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common'
+import { Controller, Post, Body, Get, Param, ParseIntPipe } from '@nestjs/common'
 import { UserService } from './user.service'
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger'
 
@@ -23,6 +23,14 @@ export class UserController {
   async getAllUsers (): Promise<Array<Partial<User>>> {
     return await this.userService.getAllUsers()
   }
+
+  @ApiOperation({ summary: 'Get user by ID' })
+  @Get(':id')
+  async getUserById (@Param('id', ParseIntPipe) id: number): Promise<Partial<User>> {
+    return await this.userService.getUserById(id)
+  }
+
+  // TODO: get user by id
 
   @ApiOperation({ summary: 'Get user session statistics' })
   @Get('session-statistics')

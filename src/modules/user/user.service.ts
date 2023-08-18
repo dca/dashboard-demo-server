@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { UserRepository } from '@app/db/repository/user.repository'
 import * as argon2 from 'argon2'
 import { PrismaService } from '@app/db/prisma/prisma.service'
@@ -14,7 +14,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly userSessionRepository: UserSessionRepository
     // private readonly mailService: MailService // 注入你的郵件服務
-  ) {}
+  ) { }
 
   async createUser (email: string, password: string): Promise<User> {
     const hashedPassword = await argon2.hash(password, {
@@ -42,6 +42,14 @@ export class UserService {
 
   async getAllUsers (): Promise<User[]> {
     return await this.userRepository.getAllUsers()
+  }
+
+  async getUserById (id: number): Promise<User> {
+    const user = await this.userRepository.findUnique({ where: { id } })
+    if (user == null) {
+      throw new NotFoundException()
+    }
+    return user
   }
 
   async getActiveSessionsToday (): Promise<number> {
