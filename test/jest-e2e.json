@@ -11,6 +11,7 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
+    "@src/(.*)": "<rootDir>/../src/$1",
     "@app/db/(.*)": "<rootDir>/../libs/db/src/$1",
     "@app/db": "<rootDir>/../libs/db/src",
     "@app/otel/(.*)": "<rootDir>/../libs/otel/src/$1",
