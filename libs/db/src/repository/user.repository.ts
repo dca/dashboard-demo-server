@@ -12,6 +12,13 @@ export class UserRepository {
     return await this.prisma.user.create({ data })
   }
 
+  async updateById (id: number, data: Prisma.UserUpdateInput): Promise<User> {
+    return await this.prisma.user.update({
+      where: { id },
+      data
+    })
+  }
+
   async findOne (email: string): Promise<User | null> {
     return await this.prisma.user.findUnique({ where: { email } })
   }

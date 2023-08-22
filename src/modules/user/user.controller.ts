@@ -1,10 +1,11 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe } from '@nestjs/common'
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Patch } from '@nestjs/common'
 import { UserService } from './user.service'
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger'
 
 import { CreateUserDto } from './dto/create-user.dto'
 import { User } from '@prisma/client'
 import { ActiveSessionsResponse } from './response/active-sessions.response'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @ApiTags('user')
 @Controller('user')
@@ -30,7 +31,11 @@ export class UserController {
     return await this.userService.getUserById(id)
   }
 
-  // TODO: get user by id
+  @ApiOperation({ summary: 'Update user password' })
+  @Patch(':id')
+  async updateUserPassword (@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto): Promise<void> {
+    await this.userService.updateUserPassword(id, dto)
+  }
 
   @ApiOperation({ summary: 'Get user session statistics' })
   @Get('session-statistics')
