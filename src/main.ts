@@ -11,6 +11,8 @@ async function bootstrap (): Promise<void> {
     //
   })
 
+  app.enableVersioning()
+
   app.setGlobalPrefix('api')
 
   const config = new DocumentBuilder()

@@ -17,7 +17,10 @@ import { LoginDto } from './dto/login.dto'
 import { ApiTags } from '@nestjs/swagger'
 
 @ApiTags('Authentication')
-@Controller('auth')
+@Controller({
+  path: 'auth',
+  version: '1'
+})
 export class AuthController {
   private readonly logger = new Logger(AuthController.name)
 
