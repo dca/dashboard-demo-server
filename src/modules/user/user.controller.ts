@@ -8,7 +8,10 @@ import { ActiveSessionsResponse } from './response/active-sessions.response'
 import { UpdateUserDto } from './dto/update-user.dto'
 
 @ApiTags('user')
-@Controller('user')
+@Controller({
+  path: 'user',
+  version: '1'
+})
 export class UserController {
   constructor (private readonly userService: UserService) { }
 
