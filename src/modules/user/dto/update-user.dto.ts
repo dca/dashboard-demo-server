@@ -1,4 +1,3 @@
-
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEqualTo, IsNotEqualTo } from '@src/validators/equal-to'
 import {
