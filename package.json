@@ -88,6 +88,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
+      "^@src(|/.*)$": "<rootDir>/src/$1",
       "^@app/db(|/.*)$": "<rootDir>/libs/db/src/$1",
       "^@app/otel(|/.*)$": "<rootDir>/libs/otel/src/$1"
     }
