@@ -1,16 +1,19 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
-import { UserRepository } from '@app/db/repository/user.repository'
-import * as argon2 from 'argon2'
 import { PrismaService } from '@app/db/prisma/prisma.service'
-import { User, UserSession } from '@prisma/client'
-import { v4 as uuidv4 } from 'uuid'
 import { UserSessionRepository } from '@app/db/repository/user-session.repository'
+import { UserRepository } from '@app/db/repository/user.repository'
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
+import { User, UserSession } from '@prisma/client'
+import * as argon2 from 'argon2'
+import { v4 as uuidv4 } from 'uuid'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { UserCreatedEvent } from '@src/events/user-created.event'
 
 @Injectable()
 export class UserService {
   constructor (
     private readonly prismaService: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
     private readonly userRepository: UserRepository,
     private readonly userSessionRepository: UserSessionRepository
     // private readonly mailService: MailService // inject the mail service
@@ -18,7 +21,7 @@ export class UserService {
 
   async createUser (email: string, password: string): Promise<User> {
     // create a verification token
-    const verificationToken = uuidv4()
+    const verificationToken: string = uuidv4()
 
     // create the user
     const user = await this.userRepository.create({
@@ -28,6 +31,12 @@ export class UserService {
       verificationToken,
       verificationTokenExpiration: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24小時後過期
     })
+
+    this.eventEmitter.emit('user.created', new UserCreatedEvent({
+      id: user.id,
+      email: user.email,
+      verificationToken
+    }))
 
     // TODO: send verification email
     // const verificationLink = `https://yourdomain.com/verify?token=${verificationToken}`
