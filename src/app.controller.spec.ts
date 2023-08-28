@@ -6,6 +6,7 @@ import { DbModule } from '@app/db'
 import { UserModule } from './modules/user/user.module'
 import { ConfigService } from '@nestjs/config'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { MailerModule } from './services/mailer/mailer.module'
 
 describe('AppController', () => {
   let appController: AppController
@@ -14,14 +15,14 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [
-        ConfigService,
         EventEmitterModule,
         OtelModule,
         DbModule,
-        UserModule
+        UserModule,
+        MailerModule
       ],
       controllers: [AppController],
-      providers: [AppService]
+      providers: [AppService, ConfigService]
     }).compile()
 
     appController = app.get<AppController>(AppController)
