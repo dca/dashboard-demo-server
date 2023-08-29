@@ -58,5 +58,10 @@ export class UserRepository {
     return activeSessions / 7
   }
 
-  //
+  async incrementUserLoginCount (userId: number): Promise<void> {
+    await this.updateById(userId, {
+      loginCount: { increment: 1 },
+      lastSession: new Date()
+    })
+  }
 }

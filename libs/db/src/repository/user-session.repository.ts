@@ -4,7 +4,22 @@ import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class UserSessionRepository {
-  constructor (private readonly prisma: PrismaService) {}
+  constructor (private readonly prisma: PrismaService) { }
+
+  async upsertUserSession (userId: number): Promise<void> {
+    const currentDatetime = new Date()
+    const currentDate = new Date(
+      currentDatetime.getFullYear(),
+      currentDatetime.getMonth(),
+      currentDatetime.getDate()
+    )
+
+    await this.prisma.userSession.upsert({
+      where: { userId_sessionDate: { userId, sessionDate: currentDate } },
+      update: { lastSeen: currentDatetime, sessionDate: currentDate },
+      create: { userId, lastSeen: currentDatetime, sessionDate: currentDate }
+    })
+  }
 
   async createSession (userId: number): Promise<UserSession> {
     const now = new Date()

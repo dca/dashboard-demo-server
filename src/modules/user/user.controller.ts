@@ -23,7 +23,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get all users' })
-  @Get('all')
+  @Get()
   async getAllUsers (): Promise<Array<Partial<User>>> {
     return await this.userService.getAllUsers()
   }

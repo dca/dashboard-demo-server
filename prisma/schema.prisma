@@ -39,4 +39,5 @@ model UserSession {
   sessionDate DateTime @map("session_date")
 
   @@map("user_sessions")
+  @@unique([userId, sessionDate])
 }
