@@ -1,11 +1,12 @@
 import { Controller, Post, Body, Get, Param, ParseIntPipe, Patch } from '@nestjs/common'
 import { UserService } from './user.service'
-import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger'
+import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger'
 
 import { CreateUserDto } from './dto/create-user.dto'
 import { User } from '@prisma/client'
 import { ActiveSessionsResponse } from './response/active-sessions.response'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { CustomResponseWrapper } from '@src/utils/custom-response-wrapper'
 
 @ApiTags('user')
 @Controller({
@@ -14,6 +15,23 @@ import { UpdateUserDto } from './dto/update-user.dto'
 })
 export class UserController {
   constructor (private readonly userService: UserService) { }
+
+  @ApiOperation({ summary: 'Get user session statistics' })
+  @Get('statistics')
+  @ApiResponse({
+    status: 200,
+    description: 'The user session statistics',
+    type: CustomResponseWrapper(ActiveSessionsResponse)
+  })
+  async getSessionStatistics (): Promise<ActiveSessionsResponse> {
+    const today = await this.userService.getActiveSessionsToday()
+    const averageLast7Days = await this.userService.getAverageActiveSessionsLast7Days()
+
+    return {
+      today,
+      averageLast7Days
+    }
+  }
 
   @ApiOperation({ summary: 'Register a new user' })
   @ApiBody({ type: CreateUserDto })
@@ -38,17 +56,5 @@ export class UserController {
   @Patch(':id')
   async updateUserPassword (@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto): Promise<void> {
     await this.userService.updateUserPassword(id, dto)
-  }
-
-  @ApiOperation({ summary: 'Get user session statistics' })
-  @Get('session-statistics')
-  async getSessionStatistics (): Promise<ActiveSessionsResponse> {
-    const today = await this.userService.getActiveSessionsToday()
-    const averageLast7Days = await this.userService.getAverageActiveSessionsLast7Days()
-
-    return {
-      today,
-      averageLast7Days
-    }
   }
 }

@@ -8,12 +8,10 @@ import { AuthModule } from './modules/auth/auth.module'
 import { UserModule } from './modules/user/user.module'
 import { MailerModule } from './services/mailer/mailer.module'
 import { ConfigModule } from '@nestjs/config'
-import { APP_INTERCEPTOR } from '@nestjs/core'
+import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core'
 import { DataTransformInterceptor } from './interceptors/transform.interceptor'
 
-// import { APP_FILTER } from '@nestjs/core'
-// import { HttpExceptionFilter } from './exceptions/http-exception.filter'
-// import { AllExceptionFilter } from './exceptions/all-exception.filter'
+import { AllExceptionFilter } from './exceptions/all-exception.filter'
 
 @Module({
   imports: [
@@ -31,14 +29,11 @@ import { DataTransformInterceptor } from './interceptors/transform.interceptor'
       provide: APP_INTERCEPTOR,
       useClass: DataTransformInterceptor
     },
-    // {
-    //   provide: APP_FILTER,
-    //   useClass: AllExceptionFilter
-    // },
-    // {
-    //   provide: APP_FILTER,
-    //   useClass: HttpExceptionFilter
-    // },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionFilter
+    },
+
     AppService
   ]
 })

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { UserSession } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentDate } from '@src/utils/get-current-day'
 
 @Injectable()
 export class UserSessionRepository {
@@ -8,11 +8,7 @@ export class UserSessionRepository {
 
   async upsertUserSession (userId: number): Promise<void> {
     const currentDatetime = new Date()
-    const currentDate = new Date(
-      currentDatetime.getFullYear(),
-      currentDatetime.getMonth(),
-      currentDatetime.getDate()
-    )
+    const currentDate = getCurrentDate()
 
     await this.prisma.userSession.upsert({
       where: { userId_sessionDate: { userId, sessionDate: currentDate } },
@@ -21,47 +17,25 @@ export class UserSessionRepository {
     })
   }
 
-  async createSession (userId: number): Promise<UserSession> {
-    const now = new Date()
-    const sessionDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-
-    return await this.prisma.userSession.create({
-      data: {
-        userId,
-        lastSeen: now,
-        sessionDate
-      }
-    })
-  }
-
   async getActiveSessionsToday (): Promise<number> {
-    const today = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()))
+    const today = getCurrentDate()
 
     const activeUsersTodayCount = await this.prisma.userSession.count({
-      where: {
-        sessionDate: today
-      }
+      where: { sessionDate: today }
     })
 
     return activeUsersTodayCount // This gives the count of active users for today
   }
 
   async getAverageActiveSessionsLast7Days (): Promise<number> {
-    const now = new Date()
-    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-    const sevenDaysAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7))
+    const sevenDaysAgo = getCurrentDate(-7)
 
     const activeUsersLast7DaysCount = await this.prisma.userSession.count({
-      where: {
-        sessionDate: {
-          gte: sevenDaysAgo,
-          lt: today
-        }
-      }
+      where: { sessionDate: { gte: sevenDaysAgo } }
     })
 
     const average = activeUsersLast7DaysCount / 7
 
-    return average
+    return average // This gives the average of active users for the last 7 days
   }
 }

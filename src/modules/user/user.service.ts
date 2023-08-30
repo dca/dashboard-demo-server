@@ -89,10 +89,6 @@ export class UserService {
     return average
   }
 
-  async createSession (userId: number): Promise<UserSession> {
-    return await this.userSessionRepository.createSession(userId)
-  }
-
   private async hashPassword (password: string): Promise<string> {
     return await argon2.hash(password, {
       type: argon2.argon2id
