@@ -7,7 +7,8 @@ Error.stackTraceLimit = 100
 
 async function bootstrap (): Promise<void> {
   const app = await NestFactory.create(AppModule, {})
-  app.useGlobalPipes(new ValidationPipe())
+
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
 
   app.enableCors({
     //

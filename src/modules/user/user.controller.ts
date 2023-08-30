@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Patch } from '@nestjs/common'
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Patch, Query } from '@nestjs/common'
 import { UserService } from './user.service'
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger'
 
@@ -7,6 +7,9 @@ import { User } from '@prisma/client'
 import { ActiveSessionsResponse } from './response/active-sessions.response'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { CustomResponseWrapper } from '@src/utils/custom-response-wrapper'
+import { UserQueryDTO } from './dto/query-user.dto'
+import { PaginatedResponse, Pagination } from '@src/utils/pagination'
+import { UserResponse } from '@app/db/repository/user.repository'
 
 @ApiTags('user')
 @Controller({
@@ -41,9 +44,14 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({
+    status: 200,
+    description: 'The users',
+    type: CustomResponseWrapper(PaginatedResponse(UserResponse))
+  })
   @Get()
-  async getAllUsers (): Promise<Array<Partial<User>>> {
-    return await this.userService.getAllUsers()
+  async getAllUsers (@Query() query: UserQueryDTO): Promise<{ list: Array<Partial<User>>, pagination: Pagination }> {
+    return await this.userService.getAllUsers(query)
   }
 
   @ApiOperation({ summary: 'Get user by ID' })

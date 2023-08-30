@@ -21,7 +21,7 @@ describe('UserService', () => {
   beforeEach(async () => {
     mockUserRepository = {
       create: jest.fn(),
-      getAllUsers: jest.fn(),
+      getUsers: jest.fn(),
       findUnique: jest.fn()
     }
 

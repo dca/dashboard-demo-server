@@ -3,11 +3,13 @@ import { UserSessionRepository } from '@app/db/repository/user-session.repositor
 import { UserRepository } from '@app/db/repository/user.repository'
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { User, UserSession } from '@prisma/client'
+import { User } from '@prisma/client'
 import * as argon2 from 'argon2'
 import { v4 as uuidv4 } from 'uuid'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserCreatedEvent } from '@src/events/user-created.event'
+import { UserQueryDTO } from './dto/query-user.dto'
+import { Pagination, generatePagination } from '@src/utils/pagination'
 
 @Injectable()
 export class UserService {
@@ -16,7 +18,6 @@ export class UserService {
     private readonly eventEmitter: EventEmitter2,
     private readonly userRepository: UserRepository,
     private readonly userSessionRepository: UserSessionRepository
-    // private readonly mailService: MailService // inject the mail service
   ) { }
 
   async createUser (email: string, password: string): Promise<User> {
@@ -37,11 +38,6 @@ export class UserService {
       email: user.email,
       verificationToken
     }))
-
-    // TODO: send verification email
-    // const verificationLink = `https://yourdomain.com/verify?token=${verificationToken}`
-    // await this.mailService.sendVerificationEmail(email, verificationLink)
-
     return user
   }
 
@@ -68,8 +64,16 @@ export class UserService {
     return updatedUser
   }
 
-  async getAllUsers (): Promise<User[]> {
-    return await this.userRepository.getAllUsers()
+  async getAllUsers (query: UserQueryDTO): Promise<{ list: Array<Partial<User>>, pagination: Pagination }> {
+    const [total, users] = await Promise.all([
+      this.userRepository.count(),
+      this.userRepository.getUsers(query)
+    ])
+
+    return {
+      list: users,
+      pagination: generatePagination(query, total)
+    }
   }
 
   async getUserById (id: number): Promise<User> {
