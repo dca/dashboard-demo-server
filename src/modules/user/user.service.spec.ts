@@ -31,8 +31,7 @@ describe('UserService', () => {
 
     mockUserSessionRepository = {
       getActiveSessionsToday: jest.fn(),
-      getAverageActiveSessionsLast7Days: jest.fn(),
-      createSession: jest.fn()
+      getAverageActiveSessionsLast7Days: jest.fn()
     }
 
     mockPrismaService = {}
