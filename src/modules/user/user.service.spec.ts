@@ -21,7 +21,7 @@ describe('UserService', () => {
   beforeEach(async () => {
     mockUserRepository = {
       create: jest.fn(),
-      getAllUsers: jest.fn(),
+      getUsers: jest.fn(),
       findUnique: jest.fn()
     }
 
@@ -31,8 +31,7 @@ describe('UserService', () => {
 
     mockUserSessionRepository = {
       getActiveSessionsToday: jest.fn(),
-      getAverageActiveSessionsLast7Days: jest.fn(),
-      createSession: jest.fn()
+      getAverageActiveSessionsLast7Days: jest.fn()
     }
 
     mockPrismaService = {}

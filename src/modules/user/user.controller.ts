@@ -1,11 +1,16 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Patch } from '@nestjs/common'
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Patch, Query } from '@nestjs/common'
 import { UserService } from './user.service'
-import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger'
+import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger'
 
 import { CreateUserDto } from './dto/create-user.dto'
 import { User } from '@prisma/client'
 import { ActiveSessionsResponse } from './response/active-sessions.response'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { CustomResponseWrapper } from '@src/utils/custom-response-wrapper'
+import { UserQueryDTO } from './dto/query-user.dto'
+import { PaginatedResponse, Pagination } from '@src/utils/pagination'
+import { UserResponse } from '@app/db/repository/user.repository'
+import { VerificationDto } from './dto/verification.dto'
 
 @ApiTags('user')
 @Controller({
@@ -15,6 +20,31 @@ import { UpdateUserDto } from './dto/update-user.dto'
 export class UserController {
   constructor (private readonly userService: UserService) { }
 
+  @ApiOperation({ summary: 'Get user session statistics' })
+  @Get('statistics')
+  @ApiResponse({
+    status: 200,
+    description: 'The user session statistics',
+    type: CustomResponseWrapper(ActiveSessionsResponse)
+  })
+  async getSessionStatistics (): Promise<ActiveSessionsResponse> {
+    const today = await this.userService.getActiveSessionsToday()
+    const averageLast7Days = await this.userService.getAverageActiveSessionsLast7Days()
+
+    return {
+      today,
+      averageLast7Days
+    }
+  }
+
+  @ApiOperation({ summary: 'user verification' })
+  @ApiBody({ type: VerificationDto })
+  @Post('verification')
+  async verification (@Body() dto: VerificationDto): Promise<{ success: boolean }> {
+    const user = await this.userService.verifyUser(dto.uid, dto.code)
+    return { success: user.isVerified }
+  }
+
   @ApiOperation({ summary: 'Register a new user' })
   @ApiBody({ type: CreateUserDto })
   @Post('register')
@@ -23,9 +53,14 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get all users' })
-  @Get('all')
-  async getAllUsers (): Promise<Array<Partial<User>>> {
-    return await this.userService.getAllUsers()
+  @ApiResponse({
+    status: 200,
+    description: 'The users',
+    type: CustomResponseWrapper(PaginatedResponse(UserResponse))
+  })
+  @Get()
+  async getAllUsers (@Query() query: UserQueryDTO): Promise<{ list: Array<Partial<User>>, pagination: Pagination }> {
+    return await this.userService.getAllUsers(query)
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
@@ -38,17 +73,5 @@ export class UserController {
   @Patch(':id')
   async updateUserPassword (@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto): Promise<void> {
     await this.userService.updateUserPassword(id, dto)
-  }
-
-  @ApiOperation({ summary: 'Get user session statistics' })
-  @Get('session-statistics')
-  async getSessionStatistics (): Promise<ActiveSessionsResponse> {
-    const today = await this.userService.getActiveSessionsToday()
-    const averageLast7Days = await this.userService.getAverageActiveSessionsLast7Days()
-
-    return {
-      today,
-      averageLast7Days
-    }
   }
 }

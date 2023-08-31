@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import * as nodemailer from 'nodemailer'
 import * as AWS from 'aws-sdk'
-import { promisify } from 'util'
 import { ConfigService } from '@nestjs/config'
 
 @Injectable()
@@ -9,10 +8,9 @@ export class MailerService {
   private readonly logger = new Logger(MailerService.name)
 
   private readonly transporter: nodemailer.Transporter
-  configService: any
 
   constructor (
-    configService: ConfigService
+    private readonly configService: ConfigService
   ) {
     const ses = new AWS.SES({
       apiVersion: '2010-12-01',
@@ -34,13 +32,22 @@ export class MailerService {
 
     options = { ...defaultOptions, ...options }
 
-    try {
-      const sendMailPromisified = promisify(this.transporter.sendMail).bind(this.transporter)
-      const info = await sendMailPromisified(options)
-      this.logger.log(info.envelope)
-      this.logger.log(info.messageId)
-    } catch (err) {
-      this.logger.error(err)
-    }
+    await this._sendMail(options)
+  }
+
+  private async _sendMail (options: nodemailer.SendMailOptions): Promise<any> {
+    const response = await new Promise((resolve, reject) => {
+      this.transporter.sendMail(options, (err, info) => {
+        if (err !== null) {
+          this.logger.error(err)
+          reject(err)
+        } else {
+          this.logger.log(info.envelope)
+          this.logger.log(info.messageId)
+          resolve(info)
+        }
+      })
+    })
+    return response
   }
 }
