@@ -21,6 +21,12 @@ export class UserService {
   ) { }
 
   async createUser (email: string, password: string): Promise<User> {
+    // check if the email is already registered
+    const existingUser = await this.userRepository.findUnique({ where: { email } })
+    if (existingUser != null) {
+      throw new ForbiddenException('The email is already registered')
+    }
+
     // create a verification token
     const verificationToken: string = uuidv4()
 
