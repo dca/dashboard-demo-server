@@ -41,6 +41,44 @@ export class UserService {
     return user
   }
 
+  async verifyUser (uid: number, code: string): Promise<User> {
+    // check if the user exists
+    const user = await this.userRepository.findUnique({
+      where: { id: uid },
+      select: {
+        verificationToken: true,
+        verificationTokenExpiration: true
+      }
+    })
+
+    if (user == null) {
+      throw new NotFoundException()
+    }
+
+    if (user.isVerified) {
+      throw new ForbiddenException('The user is already verified')
+    }
+
+    // check if the verification code is correct
+    if (user.verificationToken !== code) {
+      throw new ForbiddenException('The verification code is incorrect')
+    }
+
+    // check if the verification token is expired
+    if (user.verificationTokenExpiration !== null && user.verificationTokenExpiration < new Date()) {
+      throw new ForbiddenException('The verification code is expired')
+    }
+
+    // update the user
+    const updatedUser = await this.userRepository.updateById(uid, {
+      isVerified: true,
+      verificationToken: null,
+      verificationTokenExpiration: null
+    })
+
+    return updatedUser
+  }
+
   async updateUserPassword (id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const { currentPassword, newPassword } = updateUserDto
 

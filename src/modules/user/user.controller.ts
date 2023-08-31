@@ -10,6 +10,7 @@ import { CustomResponseWrapper } from '@src/utils/custom-response-wrapper'
 import { UserQueryDTO } from './dto/query-user.dto'
 import { PaginatedResponse, Pagination } from '@src/utils/pagination'
 import { UserResponse } from '@app/db/repository/user.repository'
+import { VerificationDto } from './dto/verification.dto'
 
 @ApiTags('user')
 @Controller({
@@ -34,6 +35,14 @@ export class UserController {
       today,
       averageLast7Days
     }
+  }
+
+  @ApiOperation({ summary: 'user verification' })
+  @ApiBody({ type: VerificationDto })
+  @Post('verification')
+  async verification (@Body() dto: VerificationDto): Promise<{ success: boolean }> {
+    const user = await this.userService.verifyUser(dto.uid, dto.code)
+    return { success: user.isVerified }
   }
 
   @ApiOperation({ summary: 'Register a new user' })
