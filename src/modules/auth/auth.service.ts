@@ -53,7 +53,7 @@ export class AuthService {
     return {
       email: user.email,
       sub: user.id,
-      access_token: this.jwtService.sign(payload, { secret: 'jwt.secret1111' })
+      access_token: this.jwtService.sign(payload, { secret: process.env.JWT_SECRET })
     }
   }
 
