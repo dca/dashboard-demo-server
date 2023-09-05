@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { JwtStrategy } from './jwt.strategy'
 import { LocalStrategy } from './local.strategy'
+import { Auth0Strategy } from './auth0.strategy'
 
 @Module({
   imports: [
@@ -14,11 +15,17 @@ import { LocalStrategy } from './local.strategy'
     UserModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: 'jwt.secret1111',
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '600s' }
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtService, JwtStrategy]
+  providers: [
+    AuthService,
+    LocalStrategy,
+    Auth0Strategy,
+    JwtStrategy,
+    JwtService
+  ]
 })
 export class AuthModule {}

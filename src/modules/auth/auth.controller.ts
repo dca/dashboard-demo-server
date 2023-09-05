@@ -4,8 +4,6 @@ import {
   Post,
   UseGuards,
   Request,
-  Res,
-  Req,
   Logger,
   Body
 } from '@nestjs/common'
@@ -38,16 +36,10 @@ export class AuthController {
     return req.user
   }
 
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth (@Request() _req): Promise<any> {
-    // initiates the Google OAuth2 login flow
-  }
-
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect (@Req() req, @Res() res): Promise<any> {
-    const login = await this.authService.login(req.user)
-    res.redirect('http://localhost:3000/login/success/' + login.access_token)
+  @Get('auth0/callback')
+  @UseGuards(AuthGuard('auth0'))
+  async auth0Callback (@Request() req): Promise<any> {
+    // initiates the Auth0 login flow
+    return await this.authService.login(req.user)
   }
 }
