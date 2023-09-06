@@ -1,6 +1,6 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, Patch, Query } from '@nestjs/common'
+import { Controller, Post, Body, Get, Param, ParseIntPipe, Patch, Query, UseGuards } from '@nestjs/common'
 import { UserService } from './user.service'
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger'
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger'
 
 import { CreateUserDto } from './dto/create-user.dto'
 import { User } from '@prisma/client'
@@ -11,6 +11,7 @@ import { UserQueryDTO } from './dto/query-user.dto'
 import { PaginatedResponse, Pagination } from '@src/utils/pagination'
 import { UserResponse } from '@app/db/repository/user.repository'
 import { VerificationDto } from './dto/verification.dto'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 
 @ApiTags('user')
 @Controller({
@@ -21,12 +22,14 @@ export class UserController {
   constructor (private readonly userService: UserService) { }
 
   @ApiOperation({ summary: 'Get user session statistics' })
-  @Get('statistics')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'The user session statistics',
     type: CustomResponseWrapper(ActiveSessionsResponse)
   })
+  @Get('statistics')
   async getSessionStatistics (): Promise<ActiveSessionsResponse> {
     const today = await this.userService.getActiveSessionsToday()
     const averageLast7Days = await this.userService.getAverageActiveSessionsLast7Days()
@@ -47,8 +50,13 @@ export class UserController {
 
   @ApiOperation({ summary: 'Register a new user' })
   @ApiBody({ type: CreateUserDto })
-  @Post('register')
-  async register (@Body() { email, password }: CreateUserDto): Promise<{ id: number, email: string }> {
+  @ApiResponse({
+    status: 200,
+    description: 'The user detail',
+    type: CustomResponseWrapper(UserResponse)
+  })
+  @Post('')
+  async createUser (@Body() { email, password }: CreateUserDto): Promise<Partial<User>> {
     return await this.userService.createUser(email, password)
   }
 
@@ -64,14 +72,24 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get user by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'The user detail',
+    type: CustomResponseWrapper(UserResponse)
+  })
   @Get(':id')
   async getUserById (@Param('id', ParseIntPipe) id: number): Promise<Partial<User>> {
     return await this.userService.getUserById(id)
   }
 
   @ApiOperation({ summary: 'Update user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'The user detail',
+    type: CustomResponseWrapper(UserResponse)
+  })
   @Patch(':id')
-  async updateUserPassword (@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto): Promise<void> {
-    await this.userService.updateUserPassword(id, dto)
+  async updateUserPassword (@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto): Promise<Partial<User>> {
+    return await this.userService.updateUserPassword(id, dto)
   }
 }

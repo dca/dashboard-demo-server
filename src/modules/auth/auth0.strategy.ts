@@ -1,6 +1,7 @@
 import { UserRepository } from '@app/db/repository/user.repository'
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
+import { User } from '@prisma/client'
 import { Strategy } from 'passport-auth0'
 
 @Injectable()
@@ -20,7 +21,7 @@ export class Auth0Strategy extends PassportStrategy(Strategy, 'auth0') {
     })
   }
 
-  async validate (accessToken: string, refreshToken: string, extraParams: any, profile: any): Promise<any> {
+  async validate (accessToken: string, refreshToken: string, extraParams: any, profile: any): Promise<Partial<User>> {
     if (accessToken === undefined || extraParams.user_id === undefined) {
       throw new UnauthorizedException()
     }

@@ -8,6 +8,7 @@ export function CustomResponseWrapper<T> (classRef: new () => T): any {
     @ApiProperty({ type: classRef })
       data: T
   }
+  Object.defineProperty(CustomResponse, 'name', { value: `CustomResponseFor${classRef.name}` })
 
   return CustomResponse
 }

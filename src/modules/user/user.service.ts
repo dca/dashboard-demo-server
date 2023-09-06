@@ -20,7 +20,7 @@ export class UserService {
     private readonly userSessionRepository: UserSessionRepository
   ) { }
 
-  async createUser (email: string, password: string): Promise<User> {
+  async createUser (email: string, password: string): Promise<Partial<User>> {
     // check if the email is already registered
     const existingUser = await this.userRepository.findUnique({ where: { email } })
     if (existingUser != null) {
@@ -89,7 +89,13 @@ export class UserService {
     const { currentPassword, newPassword } = updateUserDto
 
     // check if the user exists
-    const user = await this.userRepository.findUnique({ where: { id } })
+    const user = await this.userRepository.findUnique({
+      select: {
+        id: true,
+        password: true
+      },
+      where: { id }
+    })
     if (user == null) {
       throw new NotFoundException()
     }

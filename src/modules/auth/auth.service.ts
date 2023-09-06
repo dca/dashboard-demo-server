@@ -7,12 +7,7 @@ import { User } from '@prisma/client'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 import { UserLoginEvent } from '@src/events/user-login.event'
 import { UserSessionRepository } from '@app/db/repository/user-session.repository'
-
-interface LoginResponseDto {
-  email: string
-  sub: string
-  access_token: string
-}
+import { LoginResponseDto } from './dto/login.response.dto'
 
 @Injectable()
 export class AuthService {
