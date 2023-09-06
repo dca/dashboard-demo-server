@@ -19,14 +19,16 @@ export class Pagination {
     total_count: number
 }
 
-export function PaginatedResponse<T> (TClass: new (...args: any[]) => T): any {
+export function PaginatedResponse<T> (classRef: new (...args: any[]) => T): any {
   class PaginatedResponse {
-    @ApiProperty({ type: [TClass] })
+    @ApiProperty({ type: [classRef] })
       list: T[]
 
     @ApiProperty({ type: Pagination })
       pagination: Pagination
   }
+
+  Object.defineProperty(PaginatedResponse, 'name', { value: `PaginatedResponseFor${classRef.name}` })
 
   return PaginatedResponse
 }

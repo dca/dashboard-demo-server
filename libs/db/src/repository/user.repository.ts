@@ -33,33 +33,45 @@ export class UserRepository {
     //
   }
 
-  private readonly defaultSelect = {
-    id: true,
-    email: true,
-    isVerified: true,
-    loginCount: true,
-    lastSession: true,
-    createdAt: true,
-    updatedAt: true
+  static defaultSelect: Prisma.UserDefaultArgs = {
+    select: {
+      id: true,
+      email: true,
+      isVerified: true,
+      loginCount: true,
+      lastSession: true,
+      createdAt: true,
+      updatedAt: true
+    }
   }
 
-  async create (data: Prisma.UserCreateInput): Promise<User> {
-    return await this.prisma.user.create({ data })
+  async create (data: Prisma.UserCreateInput, customSelect?: Partial<Prisma.UserDefaultArgs>): Promise<Prisma.UserGetPayload<Partial<Prisma.UserDefaultArgs>>> {
+    return await this.prisma.user.create({
+      ...UserRepository.defaultSelect,
+      data
+    })
   }
 
   async updateById (id: number, data: Prisma.UserUpdateInput): Promise<User> {
     return await this.prisma.user.update({
+      ...UserRepository.defaultSelect,
       where: { id },
       data
     })
   }
 
   async findOne (email: string): Promise<User | null> {
-    return await this.prisma.user.findUnique({ where: { email } })
+    return await this.prisma.user.findUnique({
+      ...UserRepository.defaultSelect,
+      where: { email }
+    })
   }
 
   async findUnique (args: Prisma.UserFindUniqueArgs): Promise<User | null> {
-    return await this.prisma.user.findUnique(args)
+    return await this.prisma.user.findUnique({
+      ...UserRepository.defaultSelect,
+      ...args
+    })
   }
 
   async getUsers (query: PaginationParams): Promise<Array<Partial<User>>> {
@@ -67,9 +79,9 @@ export class UserRepository {
     const skip = (page - 1) * limit
 
     const users = await this.prisma.user.findMany({
+      ...UserRepository.defaultSelect,
       skip,
-      take: limit,
-      select: this.defaultSelect
+      take: limit
     })
 
     return users
